@@ -6,7 +6,7 @@ Adapted from OpenLabeler https://github.com/Cartucho/OpenLabeling
 
 Put pdf files of documents to be labeled in the input directory
 
-Corresponding 'image_file_name.json' layout file will be created in output directory
+Corresponding 'pdf_file_name.json' layout file will be created in output directory
 
 $ main.py [-h] [-i] [-o] [-t]
 
