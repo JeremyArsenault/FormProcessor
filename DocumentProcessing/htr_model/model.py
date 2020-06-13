@@ -4,7 +4,7 @@ import pandas as pd
 
 import tensorflow.compat.v2 as tf
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D
+from tensorflow.keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D, BatchNormalization
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 import tensorflow_datasets as tfds
@@ -18,10 +18,13 @@ IMG_WIDTH = 28
 # build and return model
 def build_model():
     model = Sequential([
-        Conv2D(16, kernel_size=(3,3), padding='same', activation='relu', input_shape=(IMG_HEIGHT, IMG_WIDTH, 1)),
+        Conv2D(32, kernel_size=(3,3), padding='same', activation='relu', input_shape=(IMG_HEIGHT, IMG_WIDTH, 1)),
         MaxPooling2D(),
         Conv2D(32, kernel_size=(3,3), padding='same', activation='relu'),
         MaxPooling2D(),
+        Conv2D(32, kernel_size=(3,3), padding='same', activation='relu'),
+        MaxPooling2D(),
+        BatchNormalization(),
         Dropout(0.2),
         Flatten(),
         Dense(128, activation='relu'),
@@ -89,7 +92,7 @@ def train():
               verbose=1,
               validation_data=(X_test, y_test))
 
-    model.save('models/emnist')
+    model.save('models/emnist2')
     return history
 
 if __name__=="__main__":
@@ -97,5 +100,5 @@ if __name__=="__main__":
     # train the model
     history = train()
 
-    with open('data/history', 'wb') as f:
+    with open('data/emnist2', 'wb') as f:
             pickle.dump(history.history, f)
