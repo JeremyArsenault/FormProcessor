@@ -3,9 +3,8 @@ pyyaml
 h5py
 matplotlib
 tensorflow-gpu
-opencv
+opencv-python
 
 tensorflow_datasets
-pickle
 
 pandas
