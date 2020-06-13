@@ -2,10 +2,8 @@ numpy
 pyyaml
 h5py
 matplotlib
-tensorflow
+tensorflow-gpu
 opencv
-tqdm
-pdf2image
 
 tensorflow_datasets
 pickle
