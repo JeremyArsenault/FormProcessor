@@ -20,9 +20,9 @@ def build_model():
     model = Sequential([
         Conv2D(32, kernel_size=(3,3), padding='same', activation='relu', input_shape=(IMG_HEIGHT, IMG_WIDTH, 1)),
         MaxPooling2D(),
-        Conv2D(32, kernel_size=(3,3), padding='same', activation='relu'),
+        Conv2D(64, kernel_size=(3,3), padding='same', activation='relu'),
         MaxPooling2D(),
-        Conv2D(32, kernel_size=(3,3), padding='same', activation='relu'),
+        Conv2D(64, kernel_size=(3,3), padding='same', activation='relu'),
         MaxPooling2D(),
         BatchNormalization(),
         Dropout(0.2),
@@ -83,8 +83,8 @@ def train():
     model.summary()
     compile_model(model)
 
-    batch_size = 128
-    num_epoch = 10
+    batch_size = 512
+    num_epoch = 15
     #model training
     history = model.fit(X_train, y_train,
               batch_size=batch_size,
