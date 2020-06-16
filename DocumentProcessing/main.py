@@ -5,6 +5,7 @@ import os
 import json
 
 import htr_model.model as htr
+import omr_model.model as omr
 
 def process_text_alpha(img, divs):
     lex_filter = np.zeros(38)
@@ -38,11 +39,14 @@ def process_text(img, divs, lex_filter):
     proba = sum(pred_probs) / len(pred_probs)
     return pred, proba
 
-def process_char(img):
-    return [0]*65
-
 def process_checkbox(img):
-    return True, 0
+    global omr_model
+
+    pred = omr.predict(img, omr_model)
+    proba = max(pred)
+    pred = bool(round(pred[0]))
+
+    return pred, proba
 
 # return image of field box
 def get_field_img(doc, field):
@@ -82,7 +86,7 @@ def process_page(page, layout):
         else:
             raise Exception('Field type not recognized: '+layout[field]['type'])
 
-        data[field] = {'value':value,'proba':conf}
+        data[field] = {'value':value,'proba':str(conf)}
 
     return data
 
@@ -93,7 +97,7 @@ if __name__=='__main__':
     parser.add_argument('-i', '--input_dir', default='input', type=str, help='Path to input directory')
     parser.add_argument('-o', '--output_dir', default='output', type=str, help='Path to output directory')
     parser.add_argument('-m', '--htr_path', default='htr_model/models/emnist-merge', type=str, help='Path to htr model directory')
-    parser.add_argument('-c', '--cbox_path', default='checkbox_model/models/cbox_cnn', type=str, help='Path to checkbox model directory')
+    parser.add_argument('-c', '--cbox_path', default='omr_model/models/checkbox', type=str, help='Path to checkbox model directory')
 
     args = parser.parse_args()
 
@@ -114,6 +118,12 @@ if __name__=='__main__':
         htr_model = htr.load_model(HTR_PATH)
     except:
         raise Exception('Unable to load htr model')
+
+    global omr_model
+    try:
+        omr_model = htr.load_model(CBOX_PATH)
+    except:
+        raise Exception('Unable to load checkbox model')
 
     IMAGE_PATH_LIST = []
     for f in sorted(os.listdir(INPUT_DIR)):
@@ -137,7 +147,7 @@ if __name__=='__main__':
             page_data = process_page(np.array(page), layout[page_name])
             data[page_name] = page_data
         output_path = os.path.join(OUTPUT_DIR, filename[:-4]+'.json')
-        print(data)
+
         with open(output_path, 'w') as f:
             json.dump(data, f)
 

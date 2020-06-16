@@ -22,6 +22,6 @@ $ main.py [-h] [-i] [-o] [-t]
 		field-name : {
 			type : str // ('text-alpha', 'text-num', 'text-alphanum', 'checkbox')
 			value : str or bool
-			proba : float
+			proba : str(float)
 		}
 	}

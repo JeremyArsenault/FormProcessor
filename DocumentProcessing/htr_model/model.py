@@ -74,9 +74,6 @@ def preprocess_img(img):
     new_img = np.zeros((WIDTH, HEIGHT))
     new_img[:resized.shape[0], :resized.shape[1]] = resized
 
-    plt.imshow(new_img, cmap='gray')
-    plt.show()
-
     new_img = np.reshape(new_img, (1,28,28,1))
     return new_img
 
