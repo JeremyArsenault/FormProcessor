@@ -15,6 +15,9 @@ $ main.py [-h] [-i] [-o] [-t]
 	 -i, --input               Path to pdf input folder | Default: input/
 	 -o, --output              Path to pdf folder | Default: output/
 
+Example:
+$ python3 main.py -l layouts/Adult-Medical-Form-layout.json
+
 ### Layout Format:
 
 	{
