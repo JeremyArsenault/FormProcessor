@@ -4,14 +4,42 @@ import numpy as np
 import os
 import json
 
+import htr_model.model as htr
+
 def process_text_alpha(img, divs):
-    return 'Hello World!', 0
+    lex_filter = np.zeros(38)
+    lex_filter[10:] = lex_filter[10:]+1
+    return process_text(img, divs, lex_filter)
 
 def process_text_num(img, divs):
-    return 'Hello World!', 0
+    lex_filter = np.zeros(38)
+    lex_filter[:10] = lex_filter[:10]+1
+    lex_filter[36:] = lex_filter[36:]+1
+    return process_text(img, divs, lex_filter)
 
 def process_text_alphanum(img, divs):
-    return 'Hello World!', 0
+    lex_filter = np.ones(38)
+    return process_text(img, divs, lex_filter)
+
+def process_text(img, divs, lex_filter):
+    global htr_model
+    lex = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ .'
+
+    char_width = img.shape[1]/divs
+    pred_chars = []
+    pred_probs = []
+    for i in range(divs):
+        char_img = img[:, int(i*char_width):int((i+1)*char_width)]
+        pred = list(htr.predict(char_img, htr_model) * lex_filter)
+        pred_probs.append(max(pred))
+        pred_chars.append(lex[pred.index(max(pred))])
+
+    pred = ''.join(pred_chars)
+    proba = sum(pred_probs) / len(pred_probs)
+    return pred, proba
+
+def process_char(img):
+    return [0]*65
 
 def process_checkbox(img):
     return True, 0
@@ -64,8 +92,8 @@ if __name__=='__main__':
     parser.add_argument('-l', '--layout', type=str, help='Path to layout file')
     parser.add_argument('-i', '--input_dir', default='input', type=str, help='Path to input directory')
     parser.add_argument('-o', '--output_dir', default='output', type=str, help='Path to output directory')
-    parser.add_argument('-m', '--htr_path', default='htr_model/model.py', type=str, help='Path to htr model.py file')
-    parser.add_argument('-c', '--cbox_path', default='checkbox_model/model.py', type=str, help='Path to checkbox model.py file')
+    parser.add_argument('-m', '--htr_path', default='htr_model/models/emnist-merge', type=str, help='Path to htr model directory')
+    parser.add_argument('-c', '--cbox_path', default='checkbox_model/models/cbox_cnn', type=str, help='Path to checkbox model directory')
 
     args = parser.parse_args()
 
@@ -80,6 +108,12 @@ if __name__=='__main__':
         layout = json.load(f)
     except:
         raise Exception('Unable to load layout file')
+
+    global htr_model
+    try:
+        htr_model = htr.load_model(HTR_PATH)
+    except:
+        raise Exception('Unable to load htr model')
 
     IMAGE_PATH_LIST = []
     for f in sorted(os.listdir(INPUT_DIR)):
@@ -103,6 +137,7 @@ if __name__=='__main__':
             page_data = process_page(np.array(page), layout[page_name])
             data[page_name] = page_data
         output_path = os.path.join(OUTPUT_DIR, filename[:-4]+'.json')
+        print(data)
         with open(output_path, 'w') as f:
             json.dump(data, f)
 
